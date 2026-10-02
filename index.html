@@ -48,14 +48,32 @@ body {
 }
 .wrap { max-width: 440px; margin-inline: auto; display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
 header { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
-h1 { font-size: 18px; font-weight: 600; margin: 0; display: flex; align-items: center; gap: 8px; }
-.actions { display: flex; gap: 6px; }
-.btn {
-  font: inherit; font-size: 12px; color: var(--muted); background: transparent; border: 1px solid var(--line);
-  border-radius: 8px; height: 28px; padding: 0 10px; cursor: pointer;
+h1 { font-size: 18px; font-weight: 600; margin: 0; }
+.actions { display: flex; align-items: center; gap: 6px; }
+
+/* ปุ่มอีโมจิ */
+.ib {
+  font: inherit; font-size: 16px; line-height: 1; width: 32px; height: 30px; padding: 0; cursor: pointer;
+  color: var(--ink); background: transparent; border: 1px solid var(--line); border-radius: 8px;
 }
-.btn:hover { color: var(--ink); border-color: var(--muted); }
-.btn:focus-visible, .x:focus-visible, .add:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.ib:hover { background: var(--field); }
+.ib.warn { border-color: var(--bad); background: var(--bad-bg); }
+.ib.lg { width: 44px; height: 40px; font-size: 20px; }
+.ib:focus-visible, .sw:focus-visible, .x:focus-visible, .add:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* สวิตช์โหมดมืด/สว่าง */
+.sw {
+  position: relative; width: 60px; height: 30px; padding: 0 7px; cursor: pointer; font-size: 13px; line-height: 1;
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--field); border: 1px solid var(--line); border-radius: 99px; color: var(--ink);
+}
+.sw .tr { opacity: .55; pointer-events: none; }
+.knob {
+  position: absolute; top: 2px; left: 2px; width: 24px; height: 24px; border-radius: 50%;
+  background: var(--surface); box-shadow: 0 1px 3px rgba(0, 0, 0, .28);
+  display: grid; place-items: center; font-style: normal; font-size: 14px; transition: transform .2s;
+}
+.sw[aria-checked="true"] .knob { transform: translateX(30px); }
 
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 4px 14px 6px; }
 .cap { font-size: 11px; letter-spacing: .04em; color: var(--muted); padding-top: 8px; }
@@ -74,11 +92,11 @@ h1 { font-size: 18px; font-weight: 600; margin: 0; display: flex; align-items: c
 .bar i { position: absolute; inset: 0 auto 0 0; border-radius: 3px; background: var(--accent); width: 0; transition: width .2s; }
 .bar.no i { background: var(--bad); }
 .bar b { position: absolute; top: -4px; width: 2px; height: 14px; background: var(--ink); border-radius: 1px; }
-.hl { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 12.5px; color: var(--muted); }
-.hl b { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
-.pct { width: 40px; height: 24px; text-align: center; padding: 0 2px; border-radius: 6px; }
+.crit { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; font-size: 13px; color: var(--muted); }
+.crit b { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
 .hl2 { font-size: 12.5px; color: var(--muted); }
-.hl2 b { color: var(--accent); font-weight: 600; font-variant-numeric: tabular-nums; }
+.hl2 b { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+.hl2 b.acc { color: var(--accent); }
 
 /* ledger rows */
 .row { display: grid; grid-template-columns: 14px minmax(0, 1fr) auto; align-items: center; gap: 8px; min-height: 36px; border-bottom: 1px solid var(--line); }
@@ -90,22 +108,27 @@ h1 { font-size: 18px; font-weight: 600; margin: 0; display: flex; align-items: c
 .val.strong { color: var(--accent); font-size: 16px; font-weight: 600; }
 label { color: var(--ink); }
 label small { color: var(--muted); font-size: 11.5px; margin-left: 4px; }
+.crit label { color: var(--muted); }
 
-input {
+/* ช่องกรอก (.gh คือสำเนาแบบไม่ใช่ input ที่ใช้ตอนส่งออกรูป) */
+input, .gh {
   font: inherit; color: var(--ink); background: var(--field); border: 1px solid transparent;
-  border-radius: 8px; height: 30px; padding: 0 10px; min-width: 0; font-variant-numeric: tabular-nums;
+  border-radius: 8px; height: 30px; line-height: 28px; padding: 0 10px; min-width: 0; font-variant-numeric: tabular-nums;
 }
-input.num { width: 120px; text-align: right; }
+.gh { overflow: hidden; white-space: nowrap; }
+.num { width: 120px; text-align: right; }
+.hero .num { width: 100px; background: var(--surface); }
+.pct { width: 40px; height: 24px; line-height: 22px; text-align: center; padding: 0 2px; border-radius: 6px; background: var(--surface); }
 input::placeholder { color: var(--muted); opacity: .6; }
-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--ring); background: var(--surface); }
+input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--ring); }
 
 /* debts */
 .debts { border-bottom: 1px solid var(--line); padding-bottom: 8px; display: grid; gap: 4px; }
 .dgrid { display: grid; grid-template-columns: minmax(0, 1fr) 84px 88px 24px; gap: 6px; align-items: center; }
 .dh { font-size: 11px; color: var(--muted); padding-top: 4px; }
 .dh span:nth-child(2), .dh span:nth-child(3) { text-align: right; padding-right: 10px; }
-.dgrid input { width: 100%; height: 30px; padding: 0 8px; }
-.dgrid input.num { text-align: right; }
+.dgrid input, .dgrid .gh { width: 100%; padding: 0 8px; }
+.dgrid .num { text-align: right; }
 .x, .add {
   border: 0; background: transparent; color: var(--muted); cursor: pointer; width: 24px; height: 24px;
   border-radius: 6px; font: inherit; font-size: 16px; line-height: 1; padding: 0;
@@ -115,26 +138,37 @@ input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px 
 .add:hover { background: var(--field); }
 .add[disabled] { opacity: .3; cursor: default; }
 
+/* หน้าต่างรูปที่ส่งออก */
+.ov { position: fixed; inset: 0; z-index: 10; background: rgba(0, 0, 0, .6); display: grid; place-items: center; padding: 16px; }
+.ovc { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 12px; display: grid; gap: 10px; justify-items: center; max-width: 100%; max-height: 100%; }
+.ovc img { display: block; max-width: 100%; max-height: calc(100vh - 160px); object-fit: contain; border-radius: 6px; }
+.ovb { display: flex; gap: 8px; }
+.ov[hidden] { display: none; }
+.hint { margin: 0; font-size: 12px; color: var(--muted); text-align: center; }
+
 @media (min-width: 780px) {
   .wrap { max-width: 880px; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; }
   header, .hero { grid-column: 1 / -1; }
   .hero { grid-template-columns: 1fr 1fr; column-gap: 28px; align-items: center; }
-  .hero > .hero-top, .hero > .big { grid-column: 1; }
-  .hero > .bar, .hero > .hl, .hero > .hl2 { grid-column: 2; }
-  .hero > .hero-top { grid-row: 1; } .hero > .big { grid-row: 2; }
-  .hero > .bar { grid-row: 1; } .hero > .hl { grid-row: 2; } .hero > .hl2 { grid-row: 3; }
+  .hero > .hero-top { grid-column: 1; grid-row: 1; }
+  .hero > .big { grid-column: 1; grid-row: 2; }
+  .hero > .bar { grid-column: 2; grid-row: 1; }
+  .hero > .crit { grid-column: 2; grid-row: 2; }
+  .hero > .hl2 { grid-column: 2; grid-row: 3; }
 }
-@media (prefers-reduced-motion: reduce) { .bar i { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .bar i, .knob { transition: none; } }
 </style>
 
 </head>
 <body>
-<main class="wrap">
+<main class="wrap" id="cap">
   <header>
     <h1>คงเหลือรับหลังกู้</h1>
-    <div class="actions">
-      <button class="btn" id="copy" type="button">คัดลอกสรุป</button>
-      <button class="btn" id="reset" type="button">ล้างค่า</button>
+    <div class="actions" data-html2canvas-ignore="true">
+      <button class="sw" id="theme" type="button" role="switch" aria-checked="false" aria-label="สลับโหมดมืด/สว่าง" title="สลับโหมดมืด/สว่าง"><span class="tr">☀️</span><span class="tr">🌙</span><i class="knob" id="knob">☀️</i></button>
+      <button class="ib" id="shot" type="button" aria-label="ส่งออกเป็นรูป" title="ส่งออกเป็นรูป">📷</button>
+      <button class="ib" id="copy" type="button" aria-label="คัดลอกสรุปเป็นข้อความ" title="คัดลอกสรุปเป็นข้อความ">📋</button>
+      <button class="ib" id="reset" type="button" aria-label="ล้างค่าทั้งหมด" title="ล้างค่าทั้งหมด (กดสองครั้ง)">🧹</button>
     </div>
   </header>
 
@@ -142,16 +176,20 @@ input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px 
     <div class="hero-top"><span class="l">เหลือรับต่อเดือน หลังกู้</span><span class="pill" id="pill">—</span></div>
     <div class="big" id="after">0<small>บาท</small></div>
     <div class="bar" id="bar"><i id="fill"></i><b id="tick"></b></div>
-    <div class="hl">
-      <span>เกณฑ์ขั้นต่ำ <input class="pct" id="pct" inputmode="decimal" autocomplete="off" aria-label="เปอร์เซ็นต์เกณฑ์ขั้นต่ำ"> % = <b id="floor">0</b></span>
-      <span>ส่วนต่าง <b id="margin">0</b></span>
+    <div class="crit" title="เงินเดือนใช้คิดเกณฑ์ขั้นต่ำเท่านั้น">
+      <label for="sal">เงินเดือน</label>
+      <input class="num" id="sal" inputmode="decimal" autocomplete="off" placeholder="0">
+      <span>×</span>
+      <input class="pct" id="pct" inputmode="decimal" autocomplete="off" aria-label="เปอร์เซ็นต์เกณฑ์ขั้นต่ำ">
+      <span>% =</span>
+      <b id="floor">0</b>
     </div>
-    <div class="hl2">ผ่อนงวดใหม่ได้สูงสุด <b id="maxnew">0</b> บาท/เดือน · เหลือ <b id="remp">0</b>% ของเงินเดือน</div>
+    <div class="hl2">ส่วนต่างจากเกณฑ์ <b id="margin">—</b> · ผ่อนใหม่ได้สูงสุด <b class="acc" id="maxnew">—</b> · เหลือ <b id="remp">—</b>% ของเงินเดือน</div>
   </section>
 
   <section class="card" aria-label="ตารางบวกลบรายเดือน">
     <div class="cap">รายเดือน</div>
-    <div class="row"><span class="sg"></span><label for="sal">เงินเดือน <small>รวมรับ</small></label><input class="num" id="sal" inputmode="decimal" autocomplete="off" placeholder="0"></div>
+    <div class="row"><span class="sg"></span><label for="gross">รวมรับ <small>ตามสลิป</small></label><input class="num" id="gross" inputmode="decimal" autocomplete="off" placeholder="0"></div>
     <div class="row"><span class="sg">−</span><label for="ded">รวมหักตามสลิป</label><input class="num" id="ded" inputmode="decimal" autocomplete="off" placeholder="0"></div>
     <div class="row sum"><span class="sg">=</span><label>คงเหลือตามสลิป</label><span class="val" id="net">0</span></div>
     <div class="debts">
@@ -171,20 +209,37 @@ input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px 
   </section>
 </main>
 
+<div class="ov" id="ov" hidden role="dialog" aria-modal="true" aria-label="รูปสรุป">
+  <div class="ovc">
+    <img id="shotimg" alt="รูปสรุปคงเหลือรับ">
+    <div class="ovb">
+      <button class="ib lg" id="dl" type="button" aria-label="บันทึกรูป" title="บันทึกรูป">💾</button>
+      <button class="ib lg" id="cpimg" type="button" aria-label="คัดลอกรูป" title="คัดลอกรูป">📋</button>
+      <button class="ib lg" id="close" type="button" aria-label="ปิด" title="ปิด">✖️</button>
+    </div>
+    <p class="hint">ถ้าบันทึกไม่ได้ กดค้างที่รูปเพื่อบันทึก</p>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
 (function () {
-  var KEY = 'khlua-rab-v1';
+  var KEY = 'khlua-rab-v1', TKEY = 'ebb-theme';
   var $ = function (id) { return document.getElementById(id); };
-  var NUM = ['sal', 'ded', 'nw', 'loan', 'fee', 'pct'];
+  var NUM = ['sal', 'gross', 'ded', 'nw', 'loan', 'fee', 'pct'];
   var BLANK = {
-    sal: 0, ded: 0, nw: 0, loan: 0, fee: 0, pct: 30,
+    sal: 0, gross: 0, ded: 0, nw: 0, loan: 0, fee: 0, pct: 30,
     debts: [{ n: '', m: 0, b: 0 }, { n: '', m: 0, b: 0 }]
   };
   var S = JSON.parse(JSON.stringify(BLANK));
+  var root = document.documentElement;
 
   try {
     var saved = localStorage.getItem(KEY);
-    if (saved) { var p = JSON.parse(saved); if (p && p.debts) { S = p; } }
+    if (saved) {
+      var p = JSON.parse(saved);
+      if (p && p.debts) { if (p.gross === undefined) p.gross = p.sal || 0; S = p; }
+    }
   } catch (e) {}
 
   function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
@@ -192,7 +247,35 @@ input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px 
   function fmt(n) { return (n < 0 ? '−' : '') + Math.abs(n).toLocaleString('en-US', { maximumFractionDigits: 2 }); }
   function fmtSigned(n) { return (n > 0 ? '+' : '') + fmt(n); }
   function show(el, n) { el.value = n ? fmt(n).replace('−', '-') : ''; }
+  function flash(id, icon, ms) {
+    var b = $(id), old = b.dataset.icon || b.textContent;
+    b.dataset.icon = old; b.textContent = icon;
+    setTimeout(function () { b.textContent = old; }, ms || 1500);
+  }
 
+  /* ---------- โหมดมืด/สว่าง ---------- */
+  var sw = $('theme');
+  function effective() {
+    var t = root.getAttribute('data-theme');
+    if (t === 'dark' || t === 'light') return t;
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+  function syncSwitch() {
+    var dark = effective() === 'dark';
+    sw.setAttribute('aria-checked', dark ? 'true' : 'false');
+    $('knob').textContent = dark ? '🌙' : '☀️';
+  }
+  try { var st = localStorage.getItem(TKEY); if (st === 'dark' || st === 'light') root.setAttribute('data-theme', st); } catch (e) {}
+  sw.addEventListener('click', function () {
+    var next = effective() === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    try { localStorage.setItem(TKEY, next); } catch (e) {}
+    syncSwitch();
+  });
+  try { window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', syncSwitch); } catch (e) {}
+  syncSwitch();
+
+  /* ---------- ตารางหนี้เดิม ---------- */
   var debtsEl = $('debts');
   function renderDebts() {
     debtsEl.innerHTML = '';
@@ -212,18 +295,19 @@ input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px 
     $('add').disabled = S.debts.length >= 6;
   }
 
+  /* ---------- คำนวณ ---------- */
   function calc() {
-    var sal = S.sal || 0, ded = S.ded || 0, nw = S.nw || 0, pct = S.pct || 0;
+    var sal = S.sal || 0, gross = S.gross || 0, ded = S.ded || 0, nw = S.nw || 0, pct = S.pct || 0;
     var add = 0, payoff = 0;
     S.debts.forEach(function (d) { add += d.m || 0; payoff += d.b || 0; });
-    var floor = sal * pct / 100;
-    var net = sal - ded;
+    var floor = sal * pct / 100;          // เงินเดือน ใช้คิดเกณฑ์เท่านั้น
+    var net = gross - ded;                // รวมรับ ใช้คิดหนี้สิน
     var after = net + add - nw;
     var margin = after - floor;
     var maxNew = net + add - floor;
     var remp = sal > 0 ? after / sal * 100 : 0;
     var cash = (S.loan || 0) - payoff - (S.fee || 0);
-    return { sal: sal, ded: ded, nw: nw, pct: pct, add: add, payoff: payoff, floor: floor, net: net, after: after, margin: margin, maxNew: maxNew, remp: remp, cash: cash };
+    return { sal: sal, gross: gross, ded: ded, nw: nw, pct: pct, add: add, payoff: payoff, floor: floor, net: net, after: after, margin: margin, maxNew: maxNew, remp: remp, cash: cash };
   }
 
   var C;
@@ -234,18 +318,19 @@ input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px 
     $('payoff').textContent = fmt(C.payoff);
     $('cash').textContent = fmt(C.cash);
     $('floor').textContent = fmt(C.floor);
-    $('margin').textContent = C.sal > 0 ? fmtSigned(C.margin) : '—';
-    $('maxnew').textContent = C.sal > 0 ? fmt(Math.max(0, C.maxNew)) : '—';
-    $('remp').textContent = C.sal > 0 ? C.remp.toFixed(1) : '—';
+    var ok = C.sal > 0;
+    $('margin').textContent = ok ? fmtSigned(C.margin) : '—';
+    $('maxnew').textContent = ok ? fmt(Math.max(0, C.maxNew)) : '—';
+    $('remp').textContent = ok ? C.remp.toFixed(1) : '—';
     var big = $('after');
     big.innerHTML = fmt(C.after) + '<small>บาท</small>';
     big.className = 'big' + (C.after < 0 ? ' neg' : '');
     var pill = $('pill'), bar = $('bar');
-    if (C.sal <= 0) { pill.textContent = 'กรอกเงินเดือน'; pill.className = 'pill'; bar.className = 'bar'; }
+    if (!ok) { pill.textContent = 'กรอกเงินเดือน'; pill.className = 'pill'; bar.className = 'bar'; }
     else if (C.margin >= 0) { pill.textContent = 'ผ่านเกณฑ์ ' + C.pct + '%'; pill.className = 'pill ok'; bar.className = 'bar'; }
     else { pill.textContent = 'ต่ำกว่าเกณฑ์ ' + C.pct + '%'; pill.className = 'pill no'; bar.className = 'bar no'; }
     var scale = Math.max(60, C.pct * 1.5);
-    var w = C.sal > 0 ? Math.min(Math.max(C.remp, 0) / scale, 1) * 100 : 0;
+    var w = ok ? Math.min(Math.max(C.remp, 0) / scale, 1) * 100 : 0;
     $('fill').style.width = w + '%';
     $('tick').style.left = 'calc(' + Math.min(C.pct / scale * 100, 100) + '% - 1px)';
   }
@@ -267,11 +352,12 @@ input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px 
     paint(); save();
   });
   document.addEventListener('focusin', function (e) {
-    if (e.target.tagName === 'INPUT' && e.target.type === 'text' && e.target.classList.contains('num') || (e.target.id === 'pct')) e.target.select();
+    var t = e.target;
+    if (t.tagName === 'INPUT' && (t.classList.contains('num') || t.id === 'pct')) t.select();
   });
   document.addEventListener('focusout', function (e) {
     var t = e.target;
-    if (t.tagName !== 'INPUT' || !t.classList.contains('num') && t.id !== 'pct') return;
+    if (t.tagName !== 'INPUT' || !(t.classList.contains('num') || t.id === 'pct')) return;
     var n = parse(t.value);
     t.value = n ? fmt(n).replace('−', '-') : '';
   });
@@ -291,33 +377,32 @@ input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px 
     if (all.length) all[all.length - 1].focus();
   });
 
+  /* ---------- ล้างค่า (กดสองครั้ง) ---------- */
   var rt;
   $('reset').addEventListener('click', function () {
     var b = $('reset');
     if (!b.dataset.armed) {
-      b.dataset.armed = '1'; b.textContent = 'กดอีกครั้งเพื่อล้าง';
-      rt = setTimeout(function () { delete b.dataset.armed; b.textContent = 'ล้างค่า'; }, 2500);
+      b.dataset.armed = '1'; b.textContent = '⚠️'; b.classList.add('warn');
+      rt = setTimeout(function () { delete b.dataset.armed; b.textContent = '🧹'; b.classList.remove('warn'); }, 2500);
       return;
     }
-    clearTimeout(rt); delete b.dataset.armed; b.textContent = 'ล้างค่า';
+    clearTimeout(rt); delete b.dataset.armed; b.textContent = '🧹'; b.classList.remove('warn');
     S = JSON.parse(JSON.stringify(BLANK));
     load(); save();
   });
 
+  /* ---------- คัดลอกสรุปเป็นข้อความ ---------- */
   function summary() {
     var c = C, L = [];
-    L.push('เงินเดือน (รวมรับ) ' + fmt(c.sal));
+    L.push('รวมรับ ' + fmt(c.gross));
     L.push('− รวมหักตามสลิป ' + fmt(c.ded) + ' → คงเหลือตามสลิป ' + fmt(c.net));
     S.debts.forEach(function (d) { if (d.m || d.b) L.push('+ ปิด ' + (d.n || 'หนี้เดิม') + ' ผ่อน ' + fmt(d.m || 0) + ' (ยอดปิด ' + fmt(d.b || 0) + ')'); });
     L.push('− ผ่อนงวดใหม่ ' + fmt(c.nw));
-    L.push('= เหลือรับต่อเดือน ' + fmt(c.after) + ' (' + c.remp.toFixed(1) + '% ของเงินเดือน, เกณฑ์ ' + c.pct + '% = ' + fmt(c.floor) + ' ' + (c.margin >= 0 ? 'ผ่าน' : 'ไม่ผ่าน') + ')');
+    L.push('= เหลือรับต่อเดือน ' + fmt(c.after));
+    L.push('เกณฑ์ ' + c.pct + '% ของเงินเดือน ' + fmt(c.sal) + ' = ' + fmt(c.floor) + ' → ' + (c.sal > 0 ? (c.margin >= 0 ? 'ผ่าน' : 'ไม่ผ่าน') + ' (ส่วนต่าง ' + fmtSigned(c.margin) + ')' : 'ยังไม่ได้กรอกเงินเดือน'));
     L.push('');
     L.push('ยอดกู้ ' + fmt(S.loan || 0) + ' − ปิดหนี้เดิม ' + fmt(c.payoff) + ' − ค่าธรรมเนียม ' + fmt(S.fee || 0) + ' = รับเงินจริง ' + fmt(c.cash));
     return L.join('\n');
-  }
-  function flash(msg) {
-    var b = $('copy'); b.textContent = msg;
-    setTimeout(function () { b.textContent = 'คัดลอกสรุป'; }, 1600);
   }
   $('copy').addEventListener('click', function () {
     var text = summary();
@@ -327,11 +412,91 @@ input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px 
       document.body.appendChild(ta); ta.select();
       var ok = false; try { ok = document.execCommand('copy'); } catch (e) {}
       document.body.removeChild(ta);
-      flash(ok ? 'คัดลอกแล้ว' : 'คัดลอกไม่ได้');
+      flash('copy', ok ? '✅' : '⚠️');
     }
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(text).then(function () { flash('คัดลอกแล้ว'); }, fallback);
+      navigator.clipboard.writeText(text).then(function () { flash('copy', '✅'); }, fallback);
     } else fallback();
+  });
+
+  /* ---------- ส่งออกเป็นรูป ---------- */
+  // ทำสำเนาหน้าแบบจอแคบ ตัดแถวหนี้ที่ว่างและปุ่มแก้ไขออก เหลือแต่เนื้อหาพอดี
+  function prepClone(doc, bg) {
+    var oi = document.querySelectorAll('input'), ci = doc.querySelectorAll('input');
+    ci.forEach(function (c, k) {
+      var o = oi[k], g = doc.createElement('div');
+      var isNum = o.classList.contains('num') || o.id === 'pct';
+      g.className = 'gh ' + o.className;
+      g.textContent = o.value || (isNum ? '0' : '');
+      g.dataset.i = o.dataset.i || '';
+      c.parentNode.replaceChild(g, c);
+    });
+    doc.querySelectorAll('#debts .dgrid').forEach(function (r) {
+      var g = r.querySelector('.gh'), d = S.debts[+g.dataset.i];
+      if (d && !d.n && !d.m && !d.b) r.remove();
+    });
+    if (!doc.querySelector('#debts .dgrid')) { var dh = doc.querySelector('.dh'); if (dh) dh.remove(); }
+    doc.querySelectorAll('.x, .add').forEach(function (n) { n.remove(); });
+    doc.querySelectorAll('.dgrid').forEach(function (g) { g.style.gridTemplateColumns = 'minmax(0,1fr) 84px 88px'; });
+    var w = doc.getElementById('cap');
+    w.style.padding = '16px'; w.style.maxWidth = '472px'; w.style.margin = '0'; w.style.background = bg;
+  }
+
+  var shotUrl = null, shotBlob = null;
+  function closeShot() {
+    $('ov').hidden = true;
+    if (shotUrl) { URL.revokeObjectURL(shotUrl); shotUrl = null; }
+    shotBlob = null;
+  }
+  $('shot').addEventListener('click', function () {
+    if (typeof html2canvas === 'undefined') { flash('shot', '⚠️', 2000); return; }
+    var b = $('shot'); b.dataset.icon = b.dataset.icon || b.textContent; b.textContent = '⏳'; b.disabled = true;
+    var bg = getComputedStyle(document.body).backgroundColor;
+    var ready = document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve();
+    ready.then(function () {
+      return html2canvas($('cap'), {
+        backgroundColor: bg, scale: Math.max(2, window.devicePixelRatio || 1), windowWidth: 480,
+        useCORS: true, logging: false, onclone: function (doc) { prepClone(doc, bg); }
+      });
+    }).then(function (canvas) {
+      canvas.toBlob(function (blob) {
+        b.textContent = b.dataset.icon; b.disabled = false;
+        if (!blob) { flash('shot', '⚠️', 2000); return; }
+        shotBlob = blob; shotUrl = URL.createObjectURL(blob);
+        $('shotimg').src = shotUrl; $('ov').hidden = false;
+      }, 'image/png');
+    }).catch(function () {
+      b.disabled = false; b.textContent = '⚠️';
+      setTimeout(function () { b.textContent = b.dataset.icon; }, 2000);
+    });
+  });
+  $('close').addEventListener('click', closeShot);
+  $('ov').addEventListener('click', function (e) { if (e.target === $('ov')) closeShot(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !$('ov').hidden) closeShot(); });
+  $('dl').addEventListener('click', function () {
+    if (!shotBlob) return;
+    var d = new Date(), pad = function (n) { return (n < 10 ? '0' : '') + n; };
+    var name = 'ebb-tally-' + d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()) + '.png';
+    function plain() {
+      var a = document.createElement('a');
+      a.href = shotUrl; a.download = name;
+      document.body.appendChild(a); a.click(); a.remove();
+      flash('dl', '✅');
+    }
+    // ใน Artifact ใช้ความสามารถ downloads ของผู้ชม ส่วนบน GitHub Pages ดาวน์โหลดตรงๆ
+    if (window.claude && window.claude.use) {
+      window.claude.use('downloads').then(function (dl) {
+        if (!dl) { plain(); return; }
+        dl.save({ filename: name, data: shotBlob }).then(
+          function () { flash('dl', '✅'); },
+          function (err) { if (!err || err.code !== 'declined') flash('dl', '⚠️'); });
+      }, plain);
+    } else plain();
+  });
+  $('cpimg').addEventListener('click', function () {
+    if (!shotBlob || !navigator.clipboard || !window.ClipboardItem) { flash('cpimg', '⚠️'); return; }
+    navigator.clipboard.write([new ClipboardItem({ 'image/png': shotBlob })]).then(
+      function () { flash('cpimg', '✅'); }, function () { flash('cpimg', '⚠️'); });
   });
 
   load();
