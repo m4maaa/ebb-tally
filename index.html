@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<style>html,body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>ตารางคงเหลือรับ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap">
+<style>
+/* Layout: หน้าเดียว ผลลัพธ์อยู่บนสุด ตามด้วยตารางบวกลบ และตารางเงินกู้ (จอกว้างวางข้างกัน) */
+:root {
+  --bg: #F4F6F5;
+  --surface: #FFFFFF;
+  --hero: #E9F3F0;
+  --ink: #17221F;
+  --muted: #667873;
+  --line: #E1E7E4;
+  --field: #EEF2F0;
+  --accent: #0E6B5C;
+  --ring: rgba(14, 107, 92, .22);
+  --good: #1B7A4B;
+  --good-bg: #DDF1E5;
+  --bad: #B2352A;
+  --bad-bg: #F9E1DE;
+  --font: 'IBM Plex Sans Thai', 'Noto Sans Thai', system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0F1514; --surface: #172120; --hero: #14302B; --ink: #E6EFEC; --muted: #8FA39D;
+    --line: #26332F; --field: #1F2C29; --accent: #4CC3AB; --ring: rgba(76, 195, 171, .28);
+    --good: #6FD39A; --good-bg: #17382A; --bad: #FF8F82; --bad-bg: #402220;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0F1514; --surface: #172120; --hero: #14302B; --ink: #E6EFEC; --muted: #8FA39D;
+  --line: #26332F; --field: #1F2C29; --accent: #4CC3AB; --ring: rgba(76, 195, 171, .28);
+  --good: #6FD39A; --good-bg: #17382A; --bad: #FF8F82; --bad-bg: #402220;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 14px; line-height: 1.4;
+  padding-inline: 16px; padding-block: 14px;
+}
+.wrap { max-width: 440px; margin-inline: auto; display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
+header { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+h1 { font-size: 18px; font-weight: 600; margin: 0; display: flex; align-items: center; gap: 8px; }
+.actions { display: flex; gap: 6px; }
+.btn {
+  font: inherit; font-size: 12px; color: var(--muted); background: transparent; border: 1px solid var(--line);
+  border-radius: 8px; height: 28px; padding: 0 10px; cursor: pointer;
+}
+.btn:hover { color: var(--ink); border-color: var(--muted); }
+.btn:focus-visible, .x:focus-visible, .add:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 4px 14px 6px; }
+.cap { font-size: 11px; letter-spacing: .04em; color: var(--muted); padding-top: 8px; }
+
+/* hero */
+.hero { background: var(--hero); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; display: grid; gap: 6px; }
+.hero-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.hero-top span.l { font-size: 13px; color: var(--muted); }
+.pill { font-size: 12px; font-weight: 600; padding: 2px 10px; border-radius: 99px; background: var(--field); color: var(--muted); white-space: nowrap; }
+.pill.ok { background: var(--good-bg); color: var(--good); }
+.pill.no { background: var(--bad-bg); color: var(--bad); }
+.big { font-size: 38px; font-weight: 600; letter-spacing: -.02em; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.big small { font-size: 14px; font-weight: 400; color: var(--muted); letter-spacing: 0; margin-left: 4px; }
+.big.neg { color: var(--bad); }
+.bar { position: relative; height: 6px; border-radius: 3px; background: var(--surface); margin-block: 4px 6px; }
+.bar i { position: absolute; inset: 0 auto 0 0; border-radius: 3px; background: var(--accent); width: 0; transition: width .2s; }
+.bar.no i { background: var(--bad); }
+.bar b { position: absolute; top: -4px; width: 2px; height: 14px; background: var(--ink); border-radius: 1px; }
+.hl { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 12.5px; color: var(--muted); }
+.hl b { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+.pct { width: 40px; height: 24px; text-align: center; padding: 0 2px; border-radius: 6px; }
+.hl2 { font-size: 12.5px; color: var(--muted); }
+.hl2 b { color: var(--accent); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* ledger rows */
+.row { display: grid; grid-template-columns: 14px minmax(0, 1fr) auto; align-items: center; gap: 8px; min-height: 36px; border-bottom: 1px solid var(--line); }
+.row:last-child { border-bottom: 0; }
+.sg { color: var(--muted); font-weight: 500; text-align: center; }
+.row.sum .sg { color: var(--accent); }
+.row.sum label, .row.sum .val { font-weight: 600; }
+.val { text-align: right; font-variant-numeric: tabular-nums; font-weight: 500; padding-right: 11px; }
+.val.strong { color: var(--accent); font-size: 16px; font-weight: 600; }
+label { color: var(--ink); }
+label small { color: var(--muted); font-size: 11.5px; margin-left: 4px; }
+
+input {
+  font: inherit; color: var(--ink); background: var(--field); border: 1px solid transparent;
+  border-radius: 8px; height: 30px; padding: 0 10px; min-width: 0; font-variant-numeric: tabular-nums;
+}
+input.num { width: 120px; text-align: right; }
+input::placeholder { color: var(--muted); opacity: .6; }
+input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--ring); background: var(--surface); }
+
+/* debts */
+.debts { border-bottom: 1px solid var(--line); padding-bottom: 8px; display: grid; gap: 4px; }
+.dgrid { display: grid; grid-template-columns: minmax(0, 1fr) 84px 88px 24px; gap: 6px; align-items: center; }
+.dh { font-size: 11px; color: var(--muted); padding-top: 4px; }
+.dh span:nth-child(2), .dh span:nth-child(3) { text-align: right; padding-right: 10px; }
+.dgrid input { width: 100%; height: 30px; padding: 0 8px; }
+.dgrid input.num { text-align: right; }
+.x, .add {
+  border: 0; background: transparent; color: var(--muted); cursor: pointer; width: 24px; height: 24px;
+  border-radius: 6px; font: inherit; font-size: 16px; line-height: 1; padding: 0;
+}
+.x:hover { color: var(--bad); background: var(--bad-bg); }
+.add { color: var(--accent); font-weight: 600; }
+.add:hover { background: var(--field); }
+.add[disabled] { opacity: .3; cursor: default; }
+
+@media (min-width: 780px) {
+  .wrap { max-width: 880px; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; }
+  header, .hero { grid-column: 1 / -1; }
+  .hero { grid-template-columns: 1fr 1fr; column-gap: 28px; align-items: center; }
+  .hero > .hero-top, .hero > .big { grid-column: 1; }
+  .hero > .bar, .hero > .hl, .hero > .hl2 { grid-column: 2; }
+  .hero > .hero-top { grid-row: 1; } .hero > .big { grid-row: 2; }
+  .hero > .bar { grid-row: 1; } .hero > .hl { grid-row: 2; } .hero > .hl2 { grid-row: 3; }
+}
+@media (prefers-reduced-motion: reduce) { .bar i { transition: none; } }
+</style>
+
+</head>
+<body>
+<main class="wrap">
+  <header>
+    <h1>คงเหลือรับหลังกู้</h1>
+    <div class="actions">
+      <button class="btn" id="copy" type="button">คัดลอกสรุป</button>
+      <button class="btn" id="reset" type="button">ล้างค่า</button>
+    </div>
+  </header>
+
+  <section class="hero" aria-live="polite">
+    <div class="hero-top"><span class="l">เหลือรับต่อเดือน หลังกู้</span><span class="pill" id="pill">—</span></div>
+    <div class="big" id="after">0<small>บาท</small></div>
+    <div class="bar" id="bar"><i id="fill"></i><b id="tick"></b></div>
+    <div class="hl">
+      <span>เกณฑ์ขั้นต่ำ <input class="pct" id="pct" inputmode="decimal" autocomplete="off" aria-label="เปอร์เซ็นต์เกณฑ์ขั้นต่ำ"> % = <b id="floor">0</b></span>
+      <span>ส่วนต่าง <b id="margin">0</b></span>
+    </div>
+    <div class="hl2">ผ่อนงวดใหม่ได้สูงสุด <b id="maxnew">0</b> บาท/เดือน · เหลือ <b id="remp">0</b>% ของเงินเดือน</div>
+  </section>
+
+  <section class="card" aria-label="ตารางบวกลบรายเดือน">
+    <div class="cap">รายเดือน</div>
+    <div class="row"><span class="sg"></span><label for="sal">เงินเดือน <small>รวมรับ</small></label><input class="num" id="sal" inputmode="decimal" autocomplete="off" placeholder="0"></div>
+    <div class="row"><span class="sg">−</span><label for="ded">รวมหักตามสลิป</label><input class="num" id="ded" inputmode="decimal" autocomplete="off" placeholder="0"></div>
+    <div class="row sum"><span class="sg">=</span><label>คงเหลือตามสลิป</label><span class="val" id="net">0</span></div>
+    <div class="debts">
+      <div class="row" style="border-bottom:0"><span class="sg">+</span><label>หนี้เดิมที่ปิด <small>คืนยอดผ่อน</small></label><span class="val" id="addback">0</span></div>
+      <div class="dgrid dh"><span>รายการ</span><span>ผ่อน/เดือน</span><span>ยอดปิด</span><button class="add" id="add" type="button" aria-label="เพิ่มหนี้เดิม">+</button></div>
+      <div id="debts" style="display:grid;gap:4px"></div>
+    </div>
+    <div class="row"><span class="sg">−</span><label for="nw">ผ่อนงวดใหม่ <small>ต่อเดือน</small></label><input class="num" id="nw" inputmode="decimal" autocomplete="off" placeholder="0"></div>
+  </section>
+
+  <section class="card" aria-label="ตารางเงินกู้">
+    <div class="cap">เงินกู้ก้อนนี้</div>
+    <div class="row"><span class="sg"></span><label for="loan">ยอดกู้</label><input class="num" id="loan" inputmode="decimal" autocomplete="off" placeholder="0"></div>
+    <div class="row"><span class="sg">−</span><label>ปิดหนี้เดิม <small>รวมยอดปิด</small></label><span class="val" id="payoff">0</span></div>
+    <div class="row"><span class="sg">−</span><label for="fee">ค่าธรรมเนียม / หักอื่นๆ</label><input class="num" id="fee" inputmode="decimal" autocomplete="off" placeholder="0"></div>
+    <div class="row sum"><span class="sg">=</span><label>รับเงินจริง</label><span class="val strong" id="cash">0</span></div>
+  </section>
+</main>
+
+<script>
+(function () {
+  var KEY = 'khlua-rab-v1';
+  var $ = function (id) { return document.getElementById(id); };
+  var NUM = ['sal', 'ded', 'nw', 'loan', 'fee', 'pct'];
+  var BLANK = {
+    sal: 0, ded: 0, nw: 0, loan: 0, fee: 0, pct: 30,
+    debts: [{ n: '', m: 0, b: 0 }, { n: '', m: 0, b: 0 }]
+  };
+  var S = JSON.parse(JSON.stringify(BLANK));
+
+  try {
+    var saved = localStorage.getItem(KEY);
+    if (saved) { var p = JSON.parse(saved); if (p && p.debts) { S = p; } }
+  } catch (e) {}
+
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+  function parse(v) { var n = parseFloat(String(v).replace(/,/g, '')); return isNaN(n) ? 0 : n; }
+  function fmt(n) { return (n < 0 ? '−' : '') + Math.abs(n).toLocaleString('en-US', { maximumFractionDigits: 2 }); }
+  function fmtSigned(n) { return (n > 0 ? '+' : '') + fmt(n); }
+  function show(el, n) { el.value = n ? fmt(n).replace('−', '-') : ''; }
+
+  var debtsEl = $('debts');
+  function renderDebts() {
+    debtsEl.innerHTML = '';
+    S.debts.forEach(function (d, i) {
+      var r = document.createElement('div');
+      r.className = 'dgrid';
+      r.innerHTML =
+        '<input type="text" data-i="' + i + '" data-k="n" placeholder="ชื่อหนี้" autocomplete="off" aria-label="ชื่อหนี้">' +
+        '<input class="num" data-i="' + i + '" data-k="m" inputmode="decimal" placeholder="0" autocomplete="off" aria-label="ผ่อนต่อเดือน">' +
+        '<input class="num" data-i="' + i + '" data-k="b" inputmode="decimal" placeholder="0" autocomplete="off" aria-label="ยอดปิด">' +
+        '<button class="x" type="button" data-rm="' + i + '" aria-label="ลบรายการ">×</button>';
+      var ins = r.querySelectorAll('input');
+      ins[0].value = d.n || '';
+      show(ins[1], d.m); show(ins[2], d.b);
+      debtsEl.appendChild(r);
+    });
+    $('add').disabled = S.debts.length >= 6;
+  }
+
+  function calc() {
+    var sal = S.sal || 0, ded = S.ded || 0, nw = S.nw || 0, pct = S.pct || 0;
+    var add = 0, payoff = 0;
+    S.debts.forEach(function (d) { add += d.m || 0; payoff += d.b || 0; });
+    var floor = sal * pct / 100;
+    var net = sal - ded;
+    var after = net + add - nw;
+    var margin = after - floor;
+    var maxNew = net + add - floor;
+    var remp = sal > 0 ? after / sal * 100 : 0;
+    var cash = (S.loan || 0) - payoff - (S.fee || 0);
+    return { sal: sal, ded: ded, nw: nw, pct: pct, add: add, payoff: payoff, floor: floor, net: net, after: after, margin: margin, maxNew: maxNew, remp: remp, cash: cash };
+  }
+
+  var C;
+  function paint() {
+    C = calc();
+    $('net').textContent = fmt(C.net);
+    $('addback').textContent = fmt(C.add);
+    $('payoff').textContent = fmt(C.payoff);
+    $('cash').textContent = fmt(C.cash);
+    $('floor').textContent = fmt(C.floor);
+    $('margin').textContent = C.sal > 0 ? fmtSigned(C.margin) : '—';
+    $('maxnew').textContent = C.sal > 0 ? fmt(Math.max(0, C.maxNew)) : '—';
+    $('remp').textContent = C.sal > 0 ? C.remp.toFixed(1) : '—';
+    var big = $('after');
+    big.innerHTML = fmt(C.after) + '<small>บาท</small>';
+    big.className = 'big' + (C.after < 0 ? ' neg' : '');
+    var pill = $('pill'), bar = $('bar');
+    if (C.sal <= 0) { pill.textContent = 'กรอกเงินเดือน'; pill.className = 'pill'; bar.className = 'bar'; }
+    else if (C.margin >= 0) { pill.textContent = 'ผ่านเกณฑ์ ' + C.pct + '%'; pill.className = 'pill ok'; bar.className = 'bar'; }
+    else { pill.textContent = 'ต่ำกว่าเกณฑ์ ' + C.pct + '%'; pill.className = 'pill no'; bar.className = 'bar no'; }
+    var scale = Math.max(60, C.pct * 1.5);
+    var w = C.sal > 0 ? Math.min(Math.max(C.remp, 0) / scale, 1) * 100 : 0;
+    $('fill').style.width = w + '%';
+    $('tick').style.left = 'calc(' + Math.min(C.pct / scale * 100, 100) + '% - 1px)';
+  }
+
+  function load() {
+    NUM.forEach(function (k) { show($(k), S[k]); });
+    renderDebts();
+    paint();
+  }
+
+  document.addEventListener('input', function (e) {
+    var t = e.target;
+    if (t.tagName !== 'INPUT') return;
+    if (t.id && NUM.indexOf(t.id) > -1) { S[t.id] = parse(t.value); }
+    else if (t.dataset && t.dataset.i !== undefined) {
+      var d = S.debts[+t.dataset.i], k = t.dataset.k;
+      d[k] = k === 'n' ? t.value : parse(t.value);
+    } else return;
+    paint(); save();
+  });
+  document.addEventListener('focusin', function (e) {
+    if (e.target.tagName === 'INPUT' && e.target.type === 'text' && e.target.classList.contains('num') || (e.target.id === 'pct')) e.target.select();
+  });
+  document.addEventListener('focusout', function (e) {
+    var t = e.target;
+    if (t.tagName !== 'INPUT' || !t.classList.contains('num') && t.id !== 'pct') return;
+    var n = parse(t.value);
+    t.value = n ? fmt(n).replace('−', '-') : '';
+  });
+  document.addEventListener('click', function (e) {
+    var rm = e.target.closest('[data-rm]');
+    if (rm) {
+      S.debts.splice(+rm.dataset.rm, 1);
+      if (!S.debts.length) S.debts.push({ n: '', m: 0, b: 0 });
+      renderDebts(); paint(); save();
+    }
+  });
+  $('add').addEventListener('click', function () {
+    if (S.debts.length >= 6) return;
+    S.debts.push({ n: '', m: 0, b: 0 });
+    renderDebts(); paint(); save();
+    var all = debtsEl.querySelectorAll('input[data-k="n"]');
+    if (all.length) all[all.length - 1].focus();
+  });
+
+  var rt;
+  $('reset').addEventListener('click', function () {
+    var b = $('reset');
+    if (!b.dataset.armed) {
+      b.dataset.armed = '1'; b.textContent = 'กดอีกครั้งเพื่อล้าง';
+      rt = setTimeout(function () { delete b.dataset.armed; b.textContent = 'ล้างค่า'; }, 2500);
+      return;
+    }
+    clearTimeout(rt); delete b.dataset.armed; b.textContent = 'ล้างค่า';
+    S = JSON.parse(JSON.stringify(BLANK));
+    load(); save();
+  });
+
+  function summary() {
+    var c = C, L = [];
+    L.push('เงินเดือน (รวมรับ) ' + fmt(c.sal));
+    L.push('− รวมหักตามสลิป ' + fmt(c.ded) + ' → คงเหลือตามสลิป ' + fmt(c.net));
+    S.debts.forEach(function (d) { if (d.m || d.b) L.push('+ ปิด ' + (d.n || 'หนี้เดิม') + ' ผ่อน ' + fmt(d.m || 0) + ' (ยอดปิด ' + fmt(d.b || 0) + ')'); });
+    L.push('− ผ่อนงวดใหม่ ' + fmt(c.nw));
+    L.push('= เหลือรับต่อเดือน ' + fmt(c.after) + ' (' + c.remp.toFixed(1) + '% ของเงินเดือน, เกณฑ์ ' + c.pct + '% = ' + fmt(c.floor) + ' ' + (c.margin >= 0 ? 'ผ่าน' : 'ไม่ผ่าน') + ')');
+    L.push('');
+    L.push('ยอดกู้ ' + fmt(S.loan || 0) + ' − ปิดหนี้เดิม ' + fmt(c.payoff) + ' − ค่าธรรมเนียม ' + fmt(S.fee || 0) + ' = รับเงินจริง ' + fmt(c.cash));
+    return L.join('\n');
+  }
+  function flash(msg) {
+    var b = $('copy'); b.textContent = msg;
+    setTimeout(function () { b.textContent = 'คัดลอกสรุป'; }, 1600);
+  }
+  $('copy').addEventListener('click', function () {
+    var text = summary();
+    function fallback() {
+      var ta = document.createElement('textarea');
+      ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      var ok = false; try { ok = document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(ta);
+      flash(ok ? 'คัดลอกแล้ว' : 'คัดลอกไม่ได้');
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { flash('คัดลอกแล้ว'); }, fallback);
+    } else fallback();
+  });
+
+  load();
+})();
+</script>
+
+</body>
+</html>
