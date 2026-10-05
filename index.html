@@ -25,20 +25,22 @@
   --good-bg: #DDF1E5;
   --bad: #B2352A;
   --bad-bg: #F9E1DE;
+  --warn: #8A5A00;
+  --warn-bg: #FAEBC9;
   --font: 'IBM Plex Sans Thai', 'Noto Sans Thai', system-ui, sans-serif;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #0F1514; --surface: #172120; --hero: #14302B; --ink: #E6EFEC; --muted: #8FA39D;
     --line: #26332F; --field: #1F2C29; --accent: #4CC3AB; --ring: rgba(76, 195, 171, .28);
-    --good: #6FD39A; --good-bg: #17382A; --bad: #FF8F82; --bad-bg: #402220;
+    --good: #6FD39A; --good-bg: #17382A; --bad: #FF8F82; --bad-bg: #402220; --warn: #F2C260; --warn-bg: #3A2F14;
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --bg: #0F1514; --surface: #172120; --hero: #14302B; --ink: #E6EFEC; --muted: #8FA39D;
   --line: #26332F; --field: #1F2C29; --accent: #4CC3AB; --ring: rgba(76, 195, 171, .28);
-  --good: #6FD39A; --good-bg: #17382A; --bad: #FF8F82; --bad-bg: #402220;
+  --good: #6FD39A; --good-bg: #17382A; --bad: #FF8F82; --bad-bg: #402220; --warn: #F2C260; --warn-bg: #3A2F14;
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
@@ -80,8 +82,11 @@ h1 { font-size: 18px; font-weight: 600; margin: 0; }
 
 /* hero */
 .hero { background: var(--hero); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; display: grid; gap: 6px; }
-.hero-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-.hero-top span.l { font-size: 13px; color: var(--muted); }
+.head { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: start; }
+.head .l { font-size: 13px; color: var(--muted); }
+.ps { display: grid; justify-items: end; gap: 3px; text-align: right; }
+.sub { font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.3; color: var(--muted); }
+.sub.ok { color: var(--good); } .sub.no { color: var(--bad); }
 .pill { font-size: 12px; font-weight: 600; padding: 2px 10px; border-radius: 99px; background: var(--field); color: var(--muted); white-space: nowrap; }
 .pill.ok { background: var(--good-bg); color: var(--good); }
 .pill.no { background: var(--bad-bg); color: var(--bad); }
@@ -94,9 +99,17 @@ h1 { font-size: 18px; font-weight: 600; margin: 0; }
 .bar b { position: absolute; top: -4px; width: 2px; height: 14px; background: var(--ink); border-radius: 1px; }
 .crit { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; font-size: 13px; color: var(--muted); }
 .crit b { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
-.hl2 { font-size: 12.5px; color: var(--muted); }
-.hl2 b { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
-.hl2 b.acc { color: var(--accent); }
+/* คำแนะนำยอดผ่อน */
+.adv { border-radius: 8px; padding: 7px 10px; background: var(--surface); color: var(--muted); font-size: 12.5px; line-height: 1.45; }
+.adv.ok { background: var(--good-bg); }
+.adv.no { background: var(--bad-bg); }
+.adv.ok, .adv.no { color: var(--ink); font-variant-numeric: tabular-nums; }
+.adv b { font-weight: 600; }
+.critbox { display: grid; gap: 6px; }
+.used { text-decoration: underline; text-decoration-color: var(--accent); text-decoration-thickness: 2px; text-underline-offset: 4px; }
+input.used, .gh.used { text-decoration: none; border-bottom: 2px solid var(--accent); }
+.adv[hidden] { display: none; }
+.crit .mut { font-size: 12px; }
 
 /* ledger rows */
 .row { display: grid; grid-template-columns: 14px minmax(0, 1fr) auto; align-items: center; gap: 8px; min-height: 36px; border-bottom: 1px solid var(--line); }
@@ -118,6 +131,7 @@ input, .gh {
 .gh { overflow: hidden; white-space: nowrap; }
 .num { width: 120px; text-align: right; }
 .hero .num { width: 100px; background: var(--surface); }
+.hero .num.sm { width: 74px; }
 .pct { width: 40px; height: 24px; line-height: 22px; text-align: center; padding: 0 2px; border-radius: 6px; background: var(--surface); }
 input::placeholder { color: var(--muted); opacity: .6; }
 input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--ring); }
@@ -150,11 +164,10 @@ input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px 
   .wrap { max-width: 880px; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; }
   header, .hero { grid-column: 1 / -1; }
   .hero { grid-template-columns: 1fr 1fr; column-gap: 28px; align-items: center; }
-  .hero > .hero-top { grid-column: 1; grid-row: 1; }
-  .hero > .big { grid-column: 1; grid-row: 2; }
+  .hero > .head { grid-column: 1; grid-row: 1 / 3; }
   .hero > .bar { grid-column: 2; grid-row: 1; }
-  .hero > .crit { grid-column: 2; grid-row: 2; }
-  .hero > .hl2 { grid-column: 2; grid-row: 3; }
+  .hero > .critbox { grid-column: 2; grid-row: 2; }
+  .hero > .adv { grid-column: 1 / -1; grid-row: 3; }
 }
 @media (prefers-reduced-motion: reduce) { .bar i, .knob { transition: none; } }
 </style>
@@ -173,22 +186,30 @@ input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px 
   </header>
 
   <section class="hero" aria-live="polite">
-    <div class="hero-top"><span class="l">เหลือรับต่อเดือน หลังกู้</span><span class="pill" id="pill">—</span></div>
-    <div class="big" id="after">0<small>บาท</small></div>
-    <div class="bar" id="bar"><i id="fill"></i><b id="tick"></b></div>
-    <div class="crit" title="เงินเดือนใช้คิดเกณฑ์ขั้นต่ำเท่านั้น">
-      <label for="sal">เงินเดือน</label>
-      <input class="num" id="sal" inputmode="decimal" autocomplete="off" placeholder="0">
-      <span>×</span>
-      <input class="pct" id="pct" inputmode="decimal" autocomplete="off" aria-label="เปอร์เซ็นต์เกณฑ์ขั้นต่ำ">
-      <span>% =</span>
-      <b id="floor">0</b>
+    <div class="head">
+      <div><span class="l">เหลือรับต่อเดือน หลังกู้</span><div class="big" id="after">0<small>บาท</small></div></div>
+      <div class="ps"><span class="pill" id="pill">—</span><span class="sub" id="psub"></span></div>
     </div>
-    <div class="hl2">ส่วนต่างจากเกณฑ์ <b id="margin">—</b> · ผ่อนใหม่ได้สูงสุด <b class="acc" id="maxnew">—</b> · เหลือ <b id="remp">—</b>% ของเงินเดือน</div>
+    <div class="bar" id="bar"><i id="fill"></i><b id="tick"></b></div>
+    <div class="critbox">
+      <div class="crit" title="เงินเดือนใช้คิดเกณฑ์ขั้นต่ำเท่านั้น">
+        <label for="sal">เงินเดือน</label>
+        <input class="num" id="sal" inputmode="decimal" autocomplete="off" placeholder="0">
+        <span>×</span>
+        <input class="pct" id="pct" inputmode="decimal" autocomplete="off" aria-label="เปอร์เซ็นต์เกณฑ์ขั้นต่ำ">
+        <span>% =</span>
+        <b id="floor">0</b>
+      </div>
+      <div class="crit" title="ระเบียบ: เหลือรับไม่ต่ำกว่า 30% ของเงินเดือน และไม่น้อยกว่าจำนวนขั้นต่ำ">
+        <label for="minAmt">ขั้นต่ำตามระเบียบ</label>
+        <input class="num sm" id="minAmt" inputmode="decimal" autocomplete="off" placeholder="0">
+        <span>บาท</span>
+      </div>
+    </div>
+    <div class="adv" id="adv">กรอกเงินเดือนเพื่อดูเกณฑ์</div>
   </section>
 
   <section class="card" aria-label="ตารางบวกลบรายเดือน">
-    <div class="cap">รายเดือน</div>
     <div class="row"><span class="sg"></span><label for="gross">รวมรับ <small>ตามสลิป</small></label><input class="num" id="gross" inputmode="decimal" autocomplete="off" placeholder="0"></div>
     <div class="row"><span class="sg">−</span><label for="ded">รวมหักตามสลิป</label><input class="num" id="ded" inputmode="decimal" autocomplete="off" placeholder="0"></div>
     <div class="row sum"><span class="sg">=</span><label>คงเหลือตามสลิป</label><span class="val" id="net">0</span></div>
@@ -201,7 +222,6 @@ input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px 
   </section>
 
   <section class="card" aria-label="ตารางเงินกู้">
-    <div class="cap">เงินกู้ก้อนนี้</div>
     <div class="row"><span class="sg"></span><label for="loan">ยอดกู้</label><input class="num" id="loan" inputmode="decimal" autocomplete="off" placeholder="0"></div>
     <div class="row"><span class="sg">−</span><label>ปิดหนี้เดิม <small>รวมยอดปิด</small></label><span class="val" id="payoff">0</span></div>
     <div class="row"><span class="sg">−</span><label for="fee">ค่าธรรมเนียม / หักอื่นๆ</label><input class="num" id="fee" inputmode="decimal" autocomplete="off" placeholder="0"></div>
@@ -226,10 +246,10 @@ input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px 
 (function () {
   var KEY = 'khlua-rab-v1', TKEY = 'ebb-theme';
   var $ = function (id) { return document.getElementById(id); };
-  var NUM = ['sal', 'gross', 'ded', 'nw', 'loan', 'fee', 'pct'];
+  var NUM = ['sal', 'gross', 'ded', 'nw', 'loan', 'fee', 'pct', 'minAmt'];
   var BLANK = {
-    sal: 0, gross: 0, ded: 0, nw: 0, loan: 0, fee: 0, pct: 30,
-    debts: [{ n: '', m: 0, b: 0 }, { n: '', m: 0, b: 0 }]
+    sal: 0, gross: 0, ded: 0, nw: 0, loan: 0, fee: 0, pct: 30, minAmt: 5000,
+    debts: [{ n: '', m: 0, b: 0 }]
   };
   var S = JSON.parse(JSON.stringify(BLANK));
   var root = document.documentElement;
@@ -238,7 +258,7 @@ input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px 
     var saved = localStorage.getItem(KEY);
     if (saved) {
       var p = JSON.parse(saved);
-      if (p && p.debts) { if (p.gross === undefined) p.gross = p.sal || 0; S = p; }
+      if (p && p.debts) { if (p.gross === undefined) p.gross = p.sal || 0; if (p.minAmt === undefined) p.minAmt = 5000; S = p; }
     }
   } catch (e) {}
 
@@ -298,16 +318,32 @@ input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px 
   /* ---------- คำนวณ ---------- */
   function calc() {
     var sal = S.sal || 0, gross = S.gross || 0, ded = S.ded || 0, nw = S.nw || 0, pct = S.pct || 0;
+    var minAmt = S.minAmt || 0;
     var add = 0, payoff = 0;
     S.debts.forEach(function (d) { add += d.m || 0; payoff += d.b || 0; });
-    var floor = sal * pct / 100;          // เงินเดือน ใช้คิดเกณฑ์เท่านั้น
+    var floorPct = sal * pct / 100;       // เงินเดือน ใช้คิดเกณฑ์เท่านั้น
+    var floor = Math.max(floorPct, minAmt); // เหลือรับต้องไม่ต่ำกว่า 30% และไม่น้อยกว่าขั้นต่ำ
     var net = gross - ded;                // รวมรับ ใช้คิดหนี้สิน
     var after = net + add - nw;
-    var margin = after - floor;
-    var maxNew = net + add - floor;
+    var margin = after - floor;           // + เกินเกณฑ์, − ขาด
+    var maxNew = net + add - floor;       // ผ่อนใหม่สูงสุดที่ยังผ่านเกณฑ์
     var remp = sal > 0 ? after / sal * 100 : 0;
     var cash = (S.loan || 0) - payoff - (S.fee || 0);
-    return { sal: sal, gross: gross, ded: ded, nw: nw, pct: pct, add: add, payoff: payoff, floor: floor, net: net, after: after, margin: margin, maxNew: maxNew, remp: remp, cash: cash };
+    return { sal: sal, gross: gross, ded: ded, nw: nw, pct: pct, minAmt: minAmt, add: add, payoff: payoff, floorPct: floorPct, floor: floor, net: net, after: after, margin: margin, maxNew: maxNew, remp: remp, cash: cash };
+  }
+
+  var C;
+  function state(c) {
+    if (c.sal <= 0) return 'idle';
+    return c.margin < 0 ? 'no' : 'ok';
+  }
+  // sub = ข้อความใต้ป้ายสถานะ, box = กล่องแนะนำยอดผ่อน (HTML)
+  function advice(c) {
+    var st = state(c);
+    if (st === 'idle') return { st: st, sub: '', box: 'กรอกเงินเดือนเพื่อดูเกณฑ์' };
+    var sub = fmtSigned(c.margin);   // ส่วนต่างจากเกณฑ์ เฉพาะตัวเลข: − ขาด, + เกิน
+    var box = c.maxNew >= 0 ? 'ผ่อนไม่เกิน <b>' + fmt(c.maxNew) + '</b> จึงผ่าน' : '';
+    return { st: st, sub: sub, box: box };
   }
 
   var C;
@@ -317,22 +353,24 @@ input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px 
     $('addback').textContent = fmt(C.add);
     $('payoff').textContent = fmt(C.payoff);
     $('cash').textContent = fmt(C.cash);
-    $('floor').textContent = fmt(C.floor);
-    var ok = C.sal > 0;
-    $('margin').textContent = ok ? fmtSigned(C.margin) : '—';
-    $('maxnew').textContent = ok ? fmt(Math.max(0, C.maxNew)) : '—';
-    $('remp').textContent = ok ? C.remp.toFixed(1) : '—';
+    $('floor').textContent = fmt(C.floorPct);
     var big = $('after');
     big.innerHTML = fmt(C.after) + '<small>บาท</small>';
     big.className = 'big' + (C.after < 0 ? ' neg' : '');
-    var pill = $('pill'), bar = $('bar');
-    if (!ok) { pill.textContent = 'กรอกเงินเดือน'; pill.className = 'pill'; bar.className = 'bar'; }
-    else if (C.margin >= 0) { pill.textContent = 'ผ่านเกณฑ์ ' + C.pct + '%'; pill.className = 'pill ok'; bar.className = 'bar'; }
-    else { pill.textContent = 'ต่ำกว่าเกณฑ์ ' + C.pct + '%'; pill.className = 'pill no'; bar.className = 'bar no'; }
-    var scale = Math.max(60, C.pct * 1.5);
-    var w = ok ? Math.min(Math.max(C.remp, 0) / scale, 1) * 100 : 0;
+    var adv = advice(C), pill = $('pill'), bar = $('bar');
+    var labels = { idle: 'กรอกเงินเดือน', ok: 'ผ่านเกณฑ์', no: 'ต่ำกว่าเกณฑ์' };
+    pill.textContent = labels[adv.st]; pill.className = 'pill' + (adv.st === 'idle' ? '' : ' ' + adv.st);
+    bar.className = 'bar' + (adv.st === 'idle' ? '' : ' ' + adv.st);
+    $('adv').className = 'adv' + (adv.st === 'idle' ? '' : ' ' + adv.st);
+    var ps = $('psub'); ps.textContent = adv.sub; ps.className = 'sub' + (adv.st === 'idle' ? '' : ' ' + adv.st);
+    $('adv').innerHTML = adv.box; $('adv').hidden = !adv.box;
+    // เส้นใต้ = เกณฑ์ที่ใช้อยู่ (30% ของเงินเดือน หรือขั้นต่ำตามระเบียบ ค่าที่มากกว่า)
+    var pctUsed = adv.st !== 'idle' && C.floorPct >= C.minAmt, minUsed = adv.st !== 'idle' && C.floorPct < C.minAmt;
+    $('floor').classList.toggle('used', pctUsed); $('minAmt').classList.toggle('used', minUsed);
+    // เส้นกลางแถบ = เกณฑ์ ถ้าเหลือรับยาวเกินเส้นกลางคือผ่าน
+    var w = adv.st !== 'idle' && C.floor > 0 ? Math.min(Math.max(C.after, 0) / (2 * C.floor), 1) * 100 : 0;
     $('fill').style.width = w + '%';
-    $('tick').style.left = 'calc(' + Math.min(C.pct / scale * 100, 100) + '% - 1px)';
+    $('tick').style.left = 'calc(50% - 1px)';
   }
 
   function load() {
@@ -399,7 +437,14 @@ input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px 
     S.debts.forEach(function (d) { if (d.m || d.b) L.push('+ ปิด ' + (d.n || 'หนี้เดิม') + ' ผ่อน ' + fmt(d.m || 0) + ' (ยอดปิด ' + fmt(d.b || 0) + ')'); });
     L.push('− ผ่อนงวดใหม่ ' + fmt(c.nw));
     L.push('= เหลือรับต่อเดือน ' + fmt(c.after));
-    L.push('เกณฑ์ ' + c.pct + '% ของเงินเดือน ' + fmt(c.sal) + ' = ' + fmt(c.floor) + ' → ' + (c.sal > 0 ? (c.margin >= 0 ? 'ผ่าน' : 'ไม่ผ่าน') + ' (ส่วนต่าง ' + fmtSigned(c.margin) + ')' : 'ยังไม่ได้กรอกเงินเดือน'));
+    var st = state(c);
+    L.push('เกณฑ์เหลือรับขั้นต่ำ = มากกว่าระหว่าง ' + c.pct + '% ของเงินเดือน ' + fmt(c.sal) + ' (' + fmt(c.floorPct) + ') กับขั้นต่ำ ' + fmt(c.minAmt) + ' = ' + fmt(c.floor));
+    if (st === 'idle') L.push('ยังไม่ได้กรอกเงินเดือน');
+    else {
+      var ad = advice(c);
+      L.push((st === 'no' ? 'ต่ำกว่าเกณฑ์ ขาด ' + fmt(-c.margin) : 'ผ่านเกณฑ์ เกิน ' + fmt(c.margin)) + ' บาท');
+      if (c.maxNew >= 0) L.push('ผ่อนงวดใหม่ไม่เกิน ' + fmt(c.maxNew) + ' จึงผ่านเกณฑ์');
+    }
     L.push('');
     L.push('ยอดกู้ ' + fmt(S.loan || 0) + ' − ปิดหนี้เดิม ' + fmt(c.payoff) + ' − ค่าธรรมเนียม ' + fmt(S.fee || 0) + ' = รับเงินจริง ' + fmt(c.cash));
     return L.join('\n');
